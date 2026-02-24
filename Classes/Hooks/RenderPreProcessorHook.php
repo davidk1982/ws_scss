@@ -140,8 +140,25 @@ class RenderPreProcessorHook
                     'forceOnTop' => false,
                 ];
             } else if (!$unlink) {
+
+                if ($outputFilePath !== null) {
+                    $cssFilePath = '/' . ltrim($cssFilePath, '/');
+                }
+
                 $cssFiles[$cssFilePath] = $params['cssFiles'][$file];
                 $cssFiles[$cssFilePath]['file'] = $cssFilePath;
+
+                if ($outputFilePath !== null) {
+                    $cssFiles[$cssFilePath]['compress'] = false;
+                }
+
+                // Remove ws_scss-specific keys from tagAttributes to avoid invalid HTML attributes
+                $wsScssKeys = ['outputStyle', 'unlink', 'outputfile', 'sourceMap', 'variables.', 'inlineOutput'];
+                if (isset($cssFiles[$cssFilePath]['tagAttributes']) && is_array($cssFiles[$cssFilePath]['tagAttributes'])) {
+                    foreach ($wsScssKeys as $wsKey) {
+                        unset($cssFiles[$cssFilePath]['tagAttributes'][$wsKey]);
+                    }
+                }
             }
         }
         $params['cssFiles'] = $cssFiles;
